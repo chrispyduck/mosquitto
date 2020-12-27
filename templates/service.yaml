@@ -17,14 +17,16 @@ spec:
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
   {{- end }}
   ports:
-    - port: 1883
+    - port: {{ .Values.config.listeners.default.port }}
       targetPort: default
       protocol: TCP
-      name: default
-    - port: 9001
-      targetPort: websocket
+      name: {{ .Values.config.listeners.default.protocol }}
+    {{- range .Values.config.listeners.additional }}
+    - port: {{ .port }}
+      targetPort: {{ .protocol }}-{{ .port }}
       protocol: TCP
-      name: websocket
+      name: {{ .protocol }}-{{ .port }}
+    {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "mosquitto.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

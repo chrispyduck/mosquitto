@@ -31,11 +31,13 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: default
-              containerPort: 1883
+              containerPort: {{ .Values.config.listeners.default.port }}
               protocol: TCP
-            - name: websocket
-              containerPort: 9001
+            {{- range .Values.config.listeners.additional }}
+            - name: {{ .protocol }}-{{ .port }}
+              containerPort: {{ .port }}
               protocol: TCP
+            {{- end }}
           livenessProbe:
             tcpSocket:
               port: default
@@ -46,7 +48,30 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: configmap
-              mountPath: /mosquitto/config
+              mountPath: {{ .Values.config.paths.config }}/mosquitto.conf
+              subPath: mosquitto.conf
+            {{- if .Values.config.security.acl.enable }}
+            - name: configmap
+              mountPath: {{ .Values.config.paths.config }}/acl.conf
+              subPath: acl.conf
+            {{- end }}
+            {{- if .Values.config.security.password }} 
+            - name: configmap
+              mountPath: {{ .Values.config.paths.includes }}/mosquitto.passwd
+              subPath: mosquitto.passwd
+            {{- end }}
+            - name: configmap
+              mountPath: {{ .Values.config.paths.includes }}/listeners.conf
+              subPath: listeners.conf
+            - name: configmap
+              mountPath: {{ .Values.config.paths.includes }}/auth.conf
+              subPath: auth.conf
+            - name: configmap
+              mountPath: {{ .Values.config.paths.includes }}/persistence.conf
+              subPath: persistence.conf
+            - name: configmap
+              mountPath: {{ .Values.config.paths.includes }}/logging.conf
+              subPath: logging.conf
       volumes:
         - name: configmap
           configMap:

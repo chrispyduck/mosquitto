@@ -1,7 +1,3 @@
-# Default values for mosquitto.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 replicaCount: 1
 
 image:
@@ -13,9 +9,42 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+config:
+  paths:
+    config: /mosquitto/config
+    includes: /mosquitto/config.d
+
+  security:
+    # whether to permit anonymous connections
+    anonymous: false
+
+    # configures password authentication
+    password: 
+      # whether to enable the use of passwords and the mosquitto.passwd file
+      enable: true
+
+      # password file entries represented as an array
+      entries: []
+
+    # configures global ACL
+    acl: 
+      # if true, the acls.conf file will be emitted 
+      enable: false
+      # an array of lines for the acl.conf file
+      rules: []
+
+  listeners:
+    default: 
+      port: 1883
+      protocol: mqtt
+    
+    additional:
+      - port: 9001
+        protocol: websockets
+
 serviceAccount:
   # Specifies whether a service account should be created
-  create: true
+  create: false
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name:
@@ -23,16 +52,17 @@ serviceAccount:
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
 
 service:
   type: ClusterIP
+  annotations: []
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
