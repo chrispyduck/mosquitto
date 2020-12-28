@@ -7,11 +7,11 @@ metadata:
 data:
   mosquitto.conf: |- 
     {{- if .Values.config.security.acl.enable }}
-    acl_file acls.conf
-    {{- end }}
+    acl_file {{ .Values.config.paths.config }}/acl.conf
+    {{- end }}ss
     include_dir {{ .Values.config.paths.includes }}
     
-  {{- if .Values.config.security.password }} 
+  {{ if .Values.config.security.password -}} 
   mosquitto.passwd: |-
     {{- range .Values.config.security.password.entries }}
     {{ . }}
@@ -19,7 +19,7 @@ data:
   {{- end }}
 
   listeners.conf: |-
-    port {{ .Values.config.listeners.default.port }}
+    listener {{ .Values.config.listeners.default.port }}
     protocol {{ .Values.config.listeners.default.protocol }}
 
     {{- range .Values.config.listeners.additional }}
