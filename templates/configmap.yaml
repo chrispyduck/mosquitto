@@ -8,7 +8,7 @@ data:
   mosquitto.conf: |- 
     {{- if .Values.config.security.acl.enable }}
     acl_file {{ .Values.config.paths.config }}/acl.conf
-    {{- end }}ss
+    {{- end }}
     include_dir {{ .Values.config.paths.includes }}
     
   {{ if .Values.config.security.password -}} 
